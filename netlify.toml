@@ -1,0 +1,31 @@
+[build]
+  publish   = "public"
+  functions = "netlify/functions"
+  command   = "echo 'No build step needed'"
+
+[functions]
+  # Use Python 3.9 runtime for all functions
+  included_files = ["netlify/functions/requirements.txt"]
+
+  [functions."info"]
+    runtime = "python3.9"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin  = "*"
+    X-Frame-Options              = "SAMEORIGIN"
+    X-Content-Type-Options       = "nosniff"
+
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Access-Control-Allow-Origin  = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type"
+
+# Clean URLs
+[[redirects]]
+  from   = "/api/info"
+  to     = "/.netlify/functions/info"
+  status = 200
