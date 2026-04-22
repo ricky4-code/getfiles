@@ -16,11 +16,6 @@ const CORS = {
 const ok  = d    => ({ statusCode:200, headers:CORS, body:JSON.stringify(d) });
 const err = (m,s=400) => ({ statusCode:s, headers:CORS, body:JSON.stringify({error:m}) });
 
-const { downloadBinary } = require('yt-dlp-exec');
-
-downloadBinary()
-  .then(() => console.log('yt-dlp downloaded'))
-  .catch(err => console.error(err));
 
 function detectPlatform(url) {
   const u = url.toLowerCase();
