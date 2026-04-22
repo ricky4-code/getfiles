@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GetFiles – Free Video &amp; Media Downloader</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════
+   ROOT VARIABLES – Platform Themes
+═══════════════════════════════════════════ */
+:root {
+  /* Default / neutral */
+  --primary:       #C85A00;
+  --primary-dark:  #A04800;
+  --primary-hover: #B05200;
+  --primary-pale:  #FEF3E8;
+  --primary-light: #F4C49A;
+
+  --white:      #ffffff;
+  --gray-50:    #F8F9FA;
+  --gray-100:   #F1F3F5;
+  --gray-200:   #E2E6EA;
+  --gray-300:   #CDD2D9;
+  --gray-400:   #8E9BAA;
+  --gray-600:   #4A5568;
+  --gray-700:   #2D3748;
+  --gray-900:   #1A202C;
+
+  --radius:    12px;
+  --radius-sm: 7px;
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.07);
+  --shadow-md: 0 3px 14px rgba(0,0,0,0.09);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.11);
+  --transition: 0.2s ease;
+}
+
+/* Platform theme classes applied to body */
+body.theme-youtube   { --primary:#CC0000; --primary-dark:#990000; --primary-hover:#BB0000; --primary-pale:#FFF0F0; --primary-light:#F4A0A0; }
+body.theme-facebook  { --primary:#1877F2; --primary-dark:#0D5CC7; --primary-hover:#166BE0; --primary-pale:#EFF4FF; --primary-light:#90B8F8; }
+body.theme-instagram { --primary:#C13584; --primary-dark:#962970; --primary-hover:#B02E77; --primary-pale:#FDF0F7; --primary-light:#E8A0CC; }
+body.theme-tiktok    { --primary:#010101; --primary-dark:#333;    --primary-hover:#222;    --primary-pale:#F0FFFE; --primary-light:#A0F0EC; }
+body.theme-twitter   { --primary:#000000; --primary-dark:#1a1a1a; --primary-hover:#111;    --primary-pale:#F0F0F0; --primary-light:#A0A0A0; }
+
+/* ═══════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #fff;
+  color: var(--gray-700);
+  line-height: 1.6;
+  overflow-x: hidden;
+  transition: none;
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+nav {
+  background: #fff;
+  border-bottom: 1px solid var(--gray-200);
+  position: sticky; top: 0; z-index: 1000;
+  box-shadow: var(--shadow-sm);
+}
+.nav-inner {
+  max-width: 1180px; margin: 0 auto;
+  display: flex; align-items: center;
+  padding: 0 20px; height: 62px; gap: 6px;
+}
+.logo {
+  font-family: 'Sora', sans-serif;
+  font-weight: 800; font-size: 1.3rem;
+  color: var(--gray-900); text-decoration: none;
+  margin-right: 16px; white-space: nowrap; flex-shrink: 0;
+  letter-spacing: -0.03em;
+}
+.logo span { color: var(--primary); transition: color var(--transition); }
+
+.nav-tabs {
+  display: flex; gap: 3px; flex: 1;
+  overflow-x: auto; scrollbar-width: none;
+}
+.nav-tabs::-webkit-scrollbar { display: none; }
+
+.nav-tab {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 13px; border-radius: var(--radius-sm);
+  border: none; cursor: pointer; font-family: 'DM Sans', sans-serif;
+  font-size: 0.84rem; font-weight: 600;
+  background: transparent; color: var(--gray-600);
+  white-space: nowrap; transition: all var(--transition);
+  flex-shrink: 0;
+}
+.nav-tab svg { width: 14px; height: 14px; flex-shrink: 0; }
+.nav-tab:hover { background: var(--gray-100); color: var(--gray-900); }
+
+/* YouTube */
+.nav-tab[data-p="youtube"]:hover,
+.nav-tab[data-p="youtube"].active { background: #CC0000; color: #fff; }
+/* Facebook */
+.nav-tab[data-p="facebook"]:hover,
+.nav-tab[data-p="facebook"].active { background: #1877F2; color: #fff; }
+/* Instagram */
+.nav-tab[data-p="instagram"]:hover,
+.nav-tab[data-p="instagram"].active { background: linear-gradient(135deg,#833AB4,#C13584,#E1306C,#F77737); color: #fff; }
+/* TikTok */
+.nav-tab[data-p="tiktok"]:hover,
+.nav-tab[data-p="tiktok"].active { background: #010101; color: #25F4EE; }
+/* Twitter */
+.nav-tab[data-p="twitter"]:hover,
+.nav-tab[data-p="twitter"].active { background: #000; color: #fff; }
+
+.nav-right { display: flex; align-items: center; gap: 8px; margin-left: auto; padding-left: 8px; flex-shrink: 0; }
+
+/* ── Lang Selector ── */
+.lang-wrap { position: relative; }
+.lang-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 11px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--gray-200);
+  background: #fff; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
+  font-weight: 600; color: var(--gray-700);
+  transition: border-color var(--transition);
+}
+.lang-btn:hover { border-color: var(--primary); }
+.lang-btn .chevron { width: 11px; height: 11px; transition: transform 0.2s; }
+.lang-wrap.open .chevron { transform: rotate(180deg); }
+.lang-dropdown {
+  position: absolute; right: 0; top: calc(100% + 5px);
+  background: #fff; border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm); box-shadow: var(--shadow-lg);
+  min-width: 165px; z-index: 2000;
+  display: none; max-height: 340px; overflow-y: auto;
+}
+.lang-wrap.open .lang-dropdown { display: block; }
+.lang-option {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 13px; cursor: pointer; font-size: 0.84rem;
+  transition: background var(--transition); color: var(--gray-700);
+}
+.lang-option:hover { background: var(--gray-50); }
+.lang-option.selected { font-weight: 600; color: var(--primary); background: var(--primary-pale); }
+
+/* ═══════════════════════════════════════════
+   PLATFORM SECTIONS
+═══════════════════════════════════════════ */
+.platform-section { display: none; }
+.platform-section.active { display: block; }
+
+/* ── Hero ── */
+.hero {
+  padding: 48px 20px 36px;
+  text-align: center;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--primary-pale); border: 1.5px solid var(--primary-light);
+  color: var(--primary-dark); border-radius: 999px;
+  padding: 4px 13px; font-size: 0.74rem; font-weight: 700;
+  margin-bottom: 18px; letter-spacing: .05em; text-transform: uppercase;
+}
+.hero h1 {
+  font-family: 'Sora', sans-serif;
+  font-size: clamp(1.7rem, 4vw, 2.8rem);
+  font-weight: 800; color: var(--gray-900);
+  line-height: 1.2; margin-bottom: 12px;
+  letter-spacing: -0.03em;
+}
+.hero h1 .accent { color: var(--primary); }
+.hero .sub {
+  color: var(--gray-600); font-size: 1rem;
+  max-width: 520px; margin: 0 auto 28px;
+}
+
+/* ── Search Bar ── */
+.search-wrap {
+  max-width: 660px; margin: 0 auto 10px;
+  display: flex; border-radius: var(--radius);
+  border: 2px solid var(--primary);
+  overflow: hidden;
+  box-shadow: none;
+}
+.search-input {
+  flex: 1; border: none; outline: none;
+  padding: 15px 18px; font-size: 0.95rem;
+  font-family: 'DM Sans', sans-serif; color: var(--gray-900);
+  background: #fff;
+}
+.search-input::placeholder { color: var(--gray-400); }
+.search-btn {
+  padding: 0 26px; background: var(--primary);
+  color: #fff; border: none; cursor: pointer;
+  font-family: 'Sora', sans-serif; font-weight: 700;
+  font-size: 0.93rem; transition: background var(--transition);
+  white-space: nowrap; flex-shrink: 0;
+}
+.search-btn:hover { background: var(--primary-hover); }
+.search-hint {
+  font-size: 0.75rem; color: var(--gray-400);
+  text-align: center; margin-bottom: 36px;
+}
+
+/* ── Spinner ── */
+.spinner {
+  display: none; width: 30px; height: 30px;
+  border: 3px solid var(--gray-200);
+  border-top-color: var(--primary);
+  border-radius: 50%; animation: spin .7s linear infinite;
+  margin: 20px auto;
+}
+.spinner.active { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Result Card ── */
+.result-section {
+  max-width: 740px; margin: 0 auto 44px;
+  padding: 0 20px;
+  display: none;
+}
+.result-section.visible { display: block; }
+.result-card {
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+.result-header {
+  display: flex; gap: 16px; padding: 18px 20px;
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+  align-items: flex-start;
+}
+.result-thumb {
+  width: 120px; height: 72px; border-radius: var(--radius-sm);
+  object-fit: cover; flex-shrink: 0;
+  border: 1px solid var(--gray-200); background: var(--gray-200);
+}
+.result-meta h3 {
+  font-family: 'Sora', sans-serif; font-weight: 700;
+  font-size: 0.96rem; color: var(--gray-900);
+  margin-bottom: 5px; line-height: 1.35;
+}
+.result-dur {
+  font-size: 0.8rem; color: var(--primary-dark);
+  font-weight: 600;
+}
+
+/* Quality Table */
+.qtable { width: 100%; border-collapse: collapse; }
+.qtable thead tr { background: var(--primary); }
+.qtable thead th {
+  padding: 11px 16px; text-align: left;
+  color: #fff; font-family: 'Sora', sans-serif;
+  font-size: 0.82rem; font-weight: 700; letter-spacing: .03em;
+}
+.qtable tbody tr {
+  border-bottom: 1px solid var(--gray-100);
+  transition: background var(--transition);
+}
+.qtable tbody tr:last-child { border-bottom: none; }
+.qtable tbody tr:hover { background: var(--primary-pale); }
+.qtable td { padding: 11px 16px; font-size: 0.88rem; }
+.qtable td:last-child { text-align: right; padding-right: 14px; }
+
+/* Quality badges */
+.qbadge {
+  display: inline-block; padding: 2px 7px; border-radius: 5px;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: .05em; margin-left: 5px;
+  vertical-align: middle;
+}
+.badge-hq  { background: #DCFCE7; color: #166534; }
+.badge-hd  { background: #DBEAFE; color: #1E40AF; }
+.badge-fhd { background: #F3E8FF; color: #6B21A8; }
+.badge-4k  { background: #FEF3C7; color: #92400E; }
+.badge-nwm { background: #ECFDF5; color: #065F46; }
+
+/* Download button */
+.dl-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 16px; background: var(--primary);
+  color: #fff; border-radius: var(--radius-sm); border: none;
+  cursor: pointer; font-family: 'Sora', sans-serif;
+  font-weight: 700; font-size: 0.82rem; text-decoration: none;
+  transition: background var(--transition), transform 0.15s;
+}
+.dl-btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
+.dl-btn:active { transform: none; }
+.dl-btn svg { width: 13px; height: 13px; }
+.dl-btn.loading { opacity: .7; pointer-events: none; }
+
+/* Error message */
+.result-error {
+  padding: 20px 24px;
+  background: #FFF5F5; border: 1.5px solid #FEB2B2;
+  border-radius: var(--radius); color: #C53030;
+  font-size: 0.9rem; text-align: center; margin: 0 20px 44px;
+  max-width: 740px; margin-left: auto; margin-right: auto;
+  display: none;
+}
+.result-error.visible { display: block; }
+
+/* ── Features ── */
+.features {
+  max-width: 1100px; margin: 0 auto 48px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px; padding: 0 20px;
+}
+.feat-card {
+  border-radius: var(--radius); border: 1.5px solid var(--gray-200);
+  padding: 20px 18px; background: #fff;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.feat-card:hover { border-color: var(--primary); box-shadow: var(--shadow-sm); }
+.feat-icon {
+  width: 38px; height: 38px; border-radius: 9px;
+  background: var(--primary-pale); display: flex;
+  align-items: center; justify-content: center;
+  margin-bottom: 10px; color: var(--primary);
+}
+.feat-icon svg { width: 20px; height: 20px; }
+.feat-card h4 {
+  font-family: 'Sora', sans-serif; font-weight: 700;
+  font-size: 0.88rem; margin-bottom: 5px; color: var(--gray-900);
+}
+.feat-card p { font-size: 0.79rem; color: var(--gray-600); line-height: 1.5; }
+
+/* ── How To ── */
+.howto {
+  background: var(--gray-50);
+  border-top: 1px solid var(--gray-200);
+  border-bottom: 1px solid var(--gray-200);
+  padding: 48px 20px; margin-bottom: 48px;
+}
+.section-title {
+  font-family: 'Sora', sans-serif; font-weight: 800;
+  font-size: clamp(1.25rem, 3vw, 1.7rem);
+  color: var(--gray-900); text-align: center;
+  margin-bottom: 8px; letter-spacing: -0.02em;
+}
+.section-sub {
+  text-align: center; color: var(--gray-600);
+  font-size: 0.93rem; margin-bottom: 32px;
+}
+.steps {
+  max-width: 820px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 20px;
+}
+.step {
+  text-align: center; padding: 24px 16px;
+  background: #fff; border-radius: var(--radius);
+  border: 1.5px solid var(--gray-200);
+}
+.step-num {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--primary); color: #fff;
+  font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 12px;
+}
+.step h4 { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 0.9rem; margin-bottom: 5px; color: var(--gray-900); }
+.step p { font-size: 0.8rem; color: var(--gray-600); line-height: 1.5; }
+
+/* ── FAQ ── */
+.faq-wrap { padding: 0 20px 48px; max-width: 780px; margin: 0 auto; }
+.faq-item {
+  border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm);
+  margin-bottom: 8px; overflow: hidden; transition: border-color var(--transition);
+}
+.faq-item.open { border-color: var(--primary); }
+.faq-q {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 18px; cursor: pointer;
+  font-weight: 600; font-size: 0.9rem; color: var(--gray-900);
+  user-select: none; gap: 10px;
+}
+.faq-q:hover { background: var(--gray-50); }
+.faq-arr {
+  width: 18px; height: 18px; color: var(--primary);
+  transition: transform .3s; flex-shrink: 0;
+}
+.faq-item.open .faq-arr { transform: rotate(180deg); }
+.faq-a {
+  padding: 0 18px; max-height: 0; overflow: hidden;
+  transition: max-height .35s ease, padding .3s;
+  font-size: 0.86rem; color: var(--gray-600); line-height: 1.6;
+}
+.faq-item.open .faq-a { max-height: 300px; padding: 0 18px 14px; }
+
+/* ── Ad Banner ── */
+.ad-box {
+  max-width: 880px; margin: 0 auto 36px;
+  padding: 0 20px;
+}
+.ad-inner-box {
+  background: var(--gray-50); border: 1.5px dashed var(--gray-300);
+  border-radius: var(--radius-sm); padding: 18px;
+  text-align: center; cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+  height: 100px; display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 4px;
+}
+.ad-inner-box:hover { background: var(--primary-pale); border-color: var(--primary); }
+.ad-label { font-size: 0.7rem; color: var(--gray-400); text-transform: uppercase; letter-spacing: .08em; }
+.ad-inner-box p { font-size: 0.87rem; color: var(--gray-600); font-weight: 500; }
+
+/* ── Instagram gradient accent ── */
+body.theme-instagram .hero h1 .accent {
+  background: linear-gradient(90deg, #833AB4, #C13584, #E1306C, #F77737);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+body.theme-instagram .hero-badge { background: #FDF0F7; border-color: #E8A0CC; color: #962970; }
+body.theme-instagram .step-num { background: linear-gradient(135deg,#833AB4,#E1306C); }
+body.theme-instagram .qtable thead tr { background: linear-gradient(90deg,#833AB4,#C13584,#E1306C); }
+body.theme-instagram .search-wrap { border-color: #C13584; }
+body.theme-instagram .search-btn { background: linear-gradient(90deg,#833AB4,#E1306C); }
+body.theme-instagram .search-btn:hover { background: linear-gradient(90deg,#6D2F9E,#C0195B); }
+body.theme-instagram .dl-btn { background: linear-gradient(90deg,#833AB4,#E1306C); }
+body.theme-instagram .dl-btn:hover { background: linear-gradient(90deg,#6D2F9E,#C0195B); }
+body.theme-instagram .logo span { background: linear-gradient(90deg,#833AB4,#E1306C); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+/* TikTok accent color for text */
+body.theme-tiktok .logo span { color: #25F4EE; -webkit-text-fill-color: #25F4EE; }
+body.theme-tiktok .search-btn { background: #010101; }
+body.theme-tiktok .search-btn:hover { background: #333; }
+body.theme-tiktok .qtable thead tr { background: #010101; }
+body.theme-tiktok .faq-arr { color: #FE2C55; }
+body.theme-tiktok .step-num { background: #010101; }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--gray-900); color: var(--gray-400);
+  padding: 40px 20px 22px;
+}
+.footer-grid {
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: 2fr repeat(3, 1fr);
+  gap: 32px; margin-bottom: 32px;
+}
+.footer-logo {
+  font-family: 'Sora', sans-serif; font-weight: 800;
+  font-size: 1.2rem; color: #fff; text-decoration: none;
+  display: block; margin-bottom: 9px; letter-spacing: -0.02em;
+}
+.footer-logo span { color: #C85A00; }
+.footer-brand p { font-size: 0.81rem; color: var(--gray-400); max-width: 240px; line-height: 1.6; }
+.footer-col h5 {
+  font-family: 'Sora', sans-serif; font-weight: 700;
+  font-size: 0.78rem; color: #fff; margin-bottom: 12px;
+  text-transform: uppercase; letter-spacing: .07em;
+}
+.footer-col a {
+  display: block; font-size: 0.81rem; color: var(--gray-400);
+  text-decoration: none; margin-bottom: 7px; transition: color var(--transition);
+}
+.footer-col a:hover { color: #C85A00; }
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding-top: 18px;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 8px; font-size: 0.77rem; color: var(--gray-400);
+}
+.footer-bottom a { color: var(--gray-400); text-decoration: none; }
+.footer-bottom a:hover { color: #C85A00; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 22px; right: 22px;
+  background: var(--gray-900); color: #fff;
+  padding: 11px 18px; border-radius: var(--radius-sm);
+  font-size: 0.84rem; font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  transform: translateY(70px); opacity: 0;
+  transition: all .3s; z-index: 3000;
+  border-left: 4px solid var(--primary);
+  max-width: 320px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* ── API status pill ── */
+.api-status {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 0.72rem; color: var(--gray-400);
+  margin-top: 6px;
+}
+.api-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #22C55E; flex-shrink: 0;
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ── Responsive ── */
+@media(max-width:900px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+@media(max-width:600px) {
+  .footer-grid { grid-template-columns: 1fr; }
+  .nav-tab span { display: none; }
+  .search-btn { padding: 0 14px; font-size: 0.82rem; }
+  .result-header { flex-direction: column; }
+  .result-thumb { width: 100%; height: 160px; }
+}
+@media(max-width:400px) { .logo { font-size: 1.1rem; } }
+
+
+/* ── Result thumbnail ── */
+.result-thumb-wrap {
+  width: 140px; height: 84px; flex-shrink: 0;
+  border-radius: var(--radius-sm); overflow: hidden;
+  background: var(--gray-100); border: 1px solid var(--gray-200);
+  position: relative;
+}
+.result-thumb-img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.thumb-placeholder {
+  width: 100%; height: 100%; display: flex; align-items: center;
+  justify-content: center; font-size: 2rem;
+  background: linear-gradient(135deg, var(--primary-pale), var(--primary-light));
+}
+.result-meta-row {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  font-size: .78rem; color: var(--gray-400); margin-top: 5px;
+}
+/* spinner with label */
+.spin-wrap { display: none; text-align: center; padding: 28px 0; }
+.spin-wrap.active { display: block; }
+.spin-ring {
+  width: 34px; height: 34px;
+  border: 3px solid var(--gray-200);
+  border-top-color: var(--primary);
+  border-radius: 50%; animation: spin .7s linear infinite;
+  margin: 0 auto 10px;
+}
+.spin-label { font-size: .82rem; color: var(--gray-500); }
+/* error box */
+.err-box {
+  max-width: 700px; margin: 0 auto 36px; padding: 0 20px;
+  display: none;
+}
+.err-box.visible { display: block; }
+.err-inner {
+  background: #FFF5F5; border: 1.5px solid #FEB2B2;
+  border-radius: var(--radius-sm); color: #C53030;
+  font-size: .88rem; text-align: center; padding: 18px 22px;
+}
+/* api status */
+.api-status {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: .72rem; color: var(--gray-400); margin-top: 6px;
+}
+.api-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #22C55E; animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;}50%{opacity:.35;} }
+/* toast error variant */
+.toast.err { border-left-color: #EF4444; }
+
+
+/* ── download button ── */
+.dl-btn {
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 16px;background:var(--primary);color:#fff;
+  border-radius:var(--radius-sm);border:none;cursor:pointer;
+  font-family:'Sora',sans-serif;font-weight:700;font-size:.82rem;
+  text-decoration:none;transition:background var(--transition),transform .15s;
+  white-space:nowrap;
+}
+.dl-btn:hover{background:var(--primary-hover);transform:translateY(-1px);}
+.dl-btn:active{transform:none;}
+.dl-btn svg{width:13px;height:13px;flex-shrink:0;}
+
+/* ── toast error ── */
+.toast.err { border-left-color:#EF4444; }
+</style>
+</head>
+<body class="theme-youtube">
+
+<!-- ════════════════ TOAST ════════════════ -->
+<div class="toast" id="toast"></div>
+
+<!-- ════════════════ NAV ════════════════ -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo">Get<span>Files</span></a>
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-p="youtube" onclick="switchPlatform('youtube',this)">
+        <!-- YouTube icon -->
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1C4.5 20.4 12 20.4 12 20.4s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
+        <span data-i18n="nav_youtube">YouTube</span>
+      </button>
+      <button class="nav-tab" data-p="facebook" onclick="switchPlatform('facebook',this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.1C24 5.4 18.6 0 12 0S0 5.4 0 12.1c0 6 4.4 11 10.1 11.9v-8.4H7.1v-3.5h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9v2.3h3.4l-.5 3.5H14v8.4C19.6 23.1 24 18.1 24 12.1z"/></svg>
+        <span data-i18n="nav_facebook">Facebook</span>
+      </button>
+      <button class="nav-tab" data-p="instagram" onclick="switchPlatform('instagram',this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 3.2.1 4.7 1.7 4.8 4.8.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.1-1.6 4.7-4.8 4.8-1.3.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-3.2-.1-4.7-1.7-4.8-4.8C2.2 15.6 2.2 15.3 2.2 12s0-3.6.1-4.8C2.4 3.9 3.9 2.4 7.2 2.3 8.4 2.2 8.8 2.2 12 2.2zM12 0C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.2 4.4 2.6 6.8 7 7C8.3 24 8.7 24 12 24s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9C23.7 2.7 21.3.3 16.9.1 15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4A6.2 6.2 0 0 0 12 5.8zm0 10.2a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88z"/></svg>
+        <span data-i18n="nav_instagram">Instagram</span>
+      </button>
+      <button class="nav-tab" data-p="tiktok" onclick="switchPlatform('tiktok',this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.6 0h-3.9v16.3a3.8 3.8 0 0 1-3.8 3.7 3.8 3.8 0 0 1-3.8-3.7 3.8 3.8 0 0 1 3.8-3.7c.37 0 .73.05 1.07.14V8.8A7.7 7.7 0 0 0 12 8.5 7.7 7.7 0 0 0 4.3 16.3 7.7 7.7 0 0 0 12 24a7.7 7.7 0 0 0 7.7-7.7V8.1A11.5 11.5 0 0 0 24 9.5V5.6a7.7 7.7 0 0 1-4.4-5.6z"/></svg>
+        <span data-i18n="nav_tiktok">TikTok</span>
+      </button>
+      <button class="nav-tab" data-p="twitter" onclick="switchPlatform('twitter',this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 1h3.6L15 10.2 24 23h-7.4l-5.4-7.1L5 23H1.4l8-9.5L0 1h7.6l4.8 6.4L18.9 1zm-1.3 19.8h2L6.5 3H4.4l13.2 17.8z"/></svg>
+        <span data-i18n="nav_twitter">Twitter / X</span>
+      </button>
+    </div>
+    <div class="nav-right">
+      <div class="lang-wrap" id="langWrap">
+        <button class="lang-btn" onclick="toggleLangDropdown()">
+          <span id="langFlag">🇺🇸</span>
+          <span id="langCode">EN</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="lang-dropdown" id="langDropdown"></div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ════════════════ YOUTUBE ════════════════ -->
+<div class="platform-section active" id="sec-youtube">
+  <div class="ad-box"><div class="ad-inner-box" onclick="openAd()">
+    <div class="ad-label" data-i18n="ad_label">Advertisement</div>
+    <p data-i18n="ad_text">Support us by clicking here — opens in a new tab</p>
+  </div></div>
+  <div class="hero">
+    <div class="hero-badge">★ <span data-i18n="badge">Free · Fast · HD</span></div>
+    <h1><span class="accent" data-i18n="yt_h1a">YouTube</span> <span data-i18n="yt_h1b">Video Downloader</span></h1>
+    <p class="sub" data-i18n="yt_sub">Download any YouTube video in MP4, MP3, 4K, 1080p, 720p and more — free, no sign-up required.</p>
+    <div class="search-wrap">
+      <input class="search-input" id="yt-url" type="url" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off">
+      <button class="search-btn" onclick="fetchMedia('youtube')" data-i18n="btn_dl">Download</button>
+    </div>
+    <p class="search-hint">youtube.com · youtu.be · YouTube Shorts</p>
+    <div class="api-status"><div class="api-dot"></div><span data-i18n="api_live">API Online</span></div>
+  </div>
+  <div class="spin-wrap" id="yt-spin"><div class="spin-ring"></div><div class="spin-label">Fetching video info…</div></div>
+  <div class="err-box" id="yt-err"></div>
+  <div class="result-section" id="yt-result"></div>
+  <div class="features">
+    <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div><h4 data-i18n="f1h">All Resolutions</h4><p data-i18n="f1p">4K, 1080p, 720p, 480p, 360p, 240p, 144p and MP3 audio.</p></div>
+    <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><h4 data-i18n="f2h">Safe & Secure</h4><p data-i18n="f2p">No malware, no tracking. Your downloads go straight to your device.</p></div>
+    <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><h4 data-i18n="f3h">Instant Processing</h4><p data-i18n="f3p">Fast servers process your link in seconds.</p></div>
+    <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div><h4 data-i18n="f4h">Any Device</h4><p data-i18n="f4p">Works on iPhone, Android, PC and Mac — any browser.</p></div>
+    <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></div><h4 data-i18n="f5h">No Account Needed</h4><p data-i18n="f5p">100% anonymous, no registration or login required.</p></div>
+    <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><h4 data-i18n="f6h">Unlimited Downloads</h4><p data-i18n="f6p">No daily limits. Download as many videos as you want.</p></div>
+  </div>
+  <div class="howto">
+    <h2 class="section-title" data-i18n="yt_how_t">How to Download YouTube Videos</h2>
+    <p class="section-sub" data-i18n="yt_how_s">3 easy steps, no software required</p>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><h4 data-i18n="s1h">Copy the Link</h4><p data-i18n="s1p">Open YouTube, find your video and copy the URL from the browser address bar or share menu.</p></div>
+      <div class="step"><div class="step-num">2</div><h4 data-i18n="s2h">Paste & Fetch</h4><p data-i18n="s2p">Paste the URL into the box above and click the Download button to fetch available formats.</p></div>
+      <div class="step"><div class="step-num">3</div><h4 data-i18n="s3h">Pick Quality & Save</h4><p data-i18n="s3p">Choose your preferred resolution or audio format and click Download to save to your device.</p></div>
+    </div>
+  </div>
+  <div style="max-width:780px;margin:0 auto;padding:0 20px 10px;"><h2 class="section-title" data-i18n="faq_t">Frequently Asked Questions</h2><p class="section-sub" data-i18n="yt_faq_s">YouTube download questions answered</p></div>
+  <div class="faq-wrap">
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="ytq1">Is it free to download YouTube videos?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="yta1">Yes — GetFiles is 100% free. Download unlimited videos in any quality with no sign-up, no payment, and no hidden fees.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="ytq2">What resolutions are available?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="yta2">We support MP3 audio, 144p, 240p, 360p, 480p, 720p HD, 1080p Full HD, 1440p 2K, and 2160p 4K — depending on what the original video offers.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="ytq3">Does it work for YouTube Shorts?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="yta3">Yes! YouTube Shorts are fully supported. Paste the Shorts URL and it downloads in vertical format at the best available quality.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="ytq4">How do I extract MP3 audio only?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="yta4">After fetching the video, click the MP3 row in the quality table. The audio track is extracted and downloaded as a high-quality MP3 file.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="ytq5">Do I need to install anything?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="yta5">No installation needed. GetFiles works entirely in your web browser. No extensions, apps, or plugins required.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="ytq6">Is downloading YouTube videos legal?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="yta6">Downloading for personal offline use is tolerated in many regions. Redistribution or commercial use of downloaded content may violate copyright. Always respect creators' rights.</div></div>
+  </div>
+  <div class="ad-box"><div class="ad-inner-box" onclick="openAd()"><div class="ad-label" data-i18n="ad_label">Advertisement</div><p data-i18n="ad_text">Support us by clicking here — opens in a new tab</p></div></div>
+</div>
+
+<!-- ════════════════ FACEBOOK ════════════════ -->
+<div class="platform-section" id="sec-facebook">
+  <div class="ad-box"><div class="ad-inner-box" onclick="openAd()"><div class="ad-label" data-i18n="ad_label">Advertisement</div><p data-i18n="ad_text">Support us by clicking here</p></div></div>
+  <div class="hero">
+    <div class="hero-badge">★ <span data-i18n="badge">Free · Fast · HD</span></div>
+    <h1><span class="accent" data-i18n="fb_h1a">Facebook</span> <span data-i18n="fb_h1b">Video Downloader</span></h1>
+    <p class="sub" data-i18n="fb_sub">Download Facebook videos, Reels, Stories and Watch content in HD and SD quality — completely free.</p>
+    <div class="search-wrap">
+      <input class="search-input" id="fb-url" type="url" placeholder="https://www.facebook.com/watch?v=...">
+      <button class="search-btn" onclick="fetchMedia('facebook')" data-i18n="btn_dl">Download</button>
+    </div>
+    <p class="search-hint">facebook.com · fb.watch · Facebook Reels · Facebook Stories</p>
+    <div class="api-status"><div class="api-dot"></div><span data-i18n="api_live">API Online</span></div>
+  </div>
+  <div class="spin-wrap" id="fb-spin"><div class="spin-ring"></div><div class="spin-label">Fetching video info…</div></div>
+  <div class="err-box" id="fb-err"></div>
+  <div class="result-section" id="fb-result"></div>
+  <div class="howto">
+    <h2 class="section-title" data-i18n="fb_how_t">How to Download Facebook Videos</h2>
+    <p class="section-sub" data-i18n="fb_how_s">Videos, Reels & Stories in seconds</p>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><h4 data-i18n="fb_s1h">Open the Video</h4><p data-i18n="fb_s1p">Find the Facebook video or Reel. Click the three-dot menu and choose "Copy Link".</p></div>
+      <div class="step"><div class="step-num">2</div><h4 data-i18n="fb_s2h">Paste the URL</h4><p data-i18n="fb_s2p">Paste the copied link in the box above and click the Download button.</p></div>
+      <div class="step"><div class="step-num">3</div><h4 data-i18n="fb_s3h">Choose & Save</h4><p data-i18n="fb_s3p">Pick HD or SD quality and click Download to save to your device.</p></div>
+    </div>
+  </div>
+  <div style="max-width:780px;margin:0 auto;padding:0 20px 10px;"><h2 class="section-title" data-i18n="faq_t">Frequently Asked Questions</h2></div>
+  <div class="faq-wrap">
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="fbq1">Can I download private Facebook videos?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="fba1">Only publicly shared Facebook videos can be downloaded. Private or friends-only videos require login authentication and cannot be accessed.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="fbq2">Can I download Facebook Reels?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="fba2">Yes! Facebook Reels are fully supported. Paste the Reel link and choose your preferred quality.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="fbq3">What quality options are available?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="fba3">Facebook videos are available in HD (720p), SD (360p), and MP3 audio format depending on the original content.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="fbq4">How do I get the Facebook video URL?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="fba4">Click the three dots (…) on the video, select "Copy link". You can also copy the URL directly from your browser address bar when watching the video.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="fbq5">Can I download Facebook Stories?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="fba5">Public Facebook stories can be downloaded. Copy the story URL and paste it into the downloader above.</div></div>
+  </div>
+  <div class="ad-box"><div class="ad-inner-box" onclick="openAd()"><div class="ad-label" data-i18n="ad_label">Advertisement</div><p data-i18n="ad_text">Support us by clicking here</p></div></div>
+</div>
+
+<!-- ════════════════ INSTAGRAM ════════════════ -->
+<div class="platform-section" id="sec-instagram">
+  <div class="ad-box"><div class="ad-inner-box" onclick="openAd()"><div class="ad-label" data-i18n="ad_label">Advertisement</div><p data-i18n="ad_text">Support us by clicking here</p></div></div>
+  <div class="hero">
+    <div class="hero-badge">★ <span data-i18n="badge">Free · Fast · HD</span></div>
+    <h1><span class="accent" data-i18n="ig_h1a">Instagram</span> <span data-i18n="ig_h1b">Downloader</span></h1>
+    <p class="sub" data-i18n="ig_sub">Download Instagram Reels, videos, photos, IGTV and Stories in original quality — free, no login needed.</p>
+    <div class="search-wrap">
+      <input class="search-input" id="ig-url" type="url" placeholder="https://www.instagram.com/p/... or /reel/...">
+      <button class="search-btn" onclick="fetchMedia('instagram')" data-i18n="btn_dl">Download</button>
+    </div>
+    <p class="search-hint">Posts · Reels · IGTV · Stories · instagram.com</p>
+    <div class="api-status"><div class="api-dot"></div><span data-i18n="api_live">API Online</span></div>
+  </div>
+  <div class="spin-wrap" id="ig-spin"><div class="spin-ring"></div><div class="spin-label">Fetching video info…</div></div>
+  <div class="err-box" id="ig-err"></div>
+  <div class="result-section" id="ig-result"></div>
+  <div class="howto">
+    <h2 class="section-title" data-i18n="ig_how_t">How to Download Instagram Content</h2>
+    <p class="section-sub" data-i18n="ig_how_s">Reels, Photos, Stories & Videos</p>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><h4 data-i18n="ig_s1h">Copy the Link</h4><p data-i18n="ig_s1p">Open Instagram, tap the share icon on the post or Reel and choose "Copy Link".</p></div>
+      <div class="step"><div class="step-num">2</div><h4 data-i18n="ig_s2h">Paste & Fetch</h4><p data-i18n="ig_s2p">Paste the link in the box above and press the Download button to process.</p></div>
+      <div class="step"><div class="step-num">3</div><h4 data-i18n="ig_s3h">Download & Save</h4><p data-i18n="ig_s3p">Choose your quality option and save the video or photo to your device.</p></div>
+    </div>
+  </div>
+  <div style="max-width:780px;margin:0 auto;padding:0 20px 10px;"><h2 class="section-title" data-i18n="faq_t">Frequently Asked Questions</h2></div>
+  <div class="faq-wrap">
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="igq1">Can I download Instagram Reels?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="iga1">Yes! Instagram Reels are fully supported. Paste the Reel URL and download in the highest available quality.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="igq2">Can I download Instagram photos?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="iga2">Yes! Single photos and carousel albums are supported. Each image in a carousel is presented separately for download.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="igq3">Can I download Instagram Stories?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="iga3">Public Instagram stories can be downloaded. Stories from private accounts require those accounts to be followed or public.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="igq4">Does it require an Instagram login?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="iga4">No. For public content, no Instagram account or login is needed. Just paste the public URL and download.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="igq5">What quality will the downloaded file be?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="iga5">Videos are provided at the maximum Instagram quality, typically up to 1080p Full HD. Photos are saved in their original resolution.</div></div>
+  </div>
+  <div class="ad-box"><div class="ad-inner-box" onclick="openAd()"><div class="ad-label" data-i18n="ad_label">Advertisement</div><p data-i18n="ad_text">Support us by clicking here</p></div></div>
+</div>
+
+<!-- ════════════════ TIKTOK ════════════════ -->
+<div class="platform-section" id="sec-tiktok">
+  <div class="ad-box"><div class="ad-inner-box" onclick="openAd()"><div class="ad-label" data-i18n="ad_label">Advertisement</div><p data-i18n="ad_text">Support us by clicking here</p></div></div>
+  <div class="hero">
+    <div class="hero-badge">★ <span data-i18n="badge">Free · Fast · HD</span></div>
+    <h1><span class="accent" data-i18n="tt_h1a">TikTok</span> <span data-i18n="tt_h1b">Video Downloader</span></h1>
+    <p class="sub" data-i18n="tt_sub">Download TikTok videos without watermark in HD quality. Supports videos, slideshows and audio — free.</p>
+    <div class="search-wrap">
+      <input class="search-input" id="tt-url" type="url" placeholder="https://www.tiktok.com/@user/video/...">
+      <button class="search-btn" onclick="fetchMedia('tiktok')" data-i18n="btn_dl">Download</button>
+    </div>
+    <p class="search-hint">tiktok.com · vm.tiktok.com · TikTok Slideshows</p>
+    <div class="api-status"><div class="api-dot"></div><span data-i18n="api_live">API Online</span></div>
+  </div>
+  <div class="spin-wrap" id="tt-spin"><div class="spin-ring"></div><div class="spin-label">Fetching video info…</div></div>
+  <div class="err-box" id="tt-err"></div>
+  <div class="result-section" id="tt-result"></div>
+  <div class="howto">
+    <h2 class="section-title" data-i18n="tt_how_t">How to Download TikTok Videos</h2>
+    <p class="section-sub" data-i18n="tt_how_s">No watermark · Original quality</p>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><h4 data-i18n="tt_s1h">Share the Video</h4><p data-i18n="tt_s1p">On TikTok, tap the Share button, then choose "Copy Link" to get the video URL.</p></div>
+      <div class="step"><div class="step-num">2</div><h4 data-i18n="tt_s2h">Paste the Link</h4><p data-i18n="tt_s2p">Paste the URL into the search box above and click Download to process it.</p></div>
+      <div class="step"><div class="step-num">3</div><h4 data-i18n="tt_s3h">Save Without Watermark</h4><p data-i18n="tt_s3p">Choose between HD (no watermark), SD, or MP3 audio and save the file.</p></div>
+    </div>
+  </div>
+  <div style="max-width:780px;margin:0 auto;padding:0 20px 10px;"><h2 class="section-title" data-i18n="faq_t">Frequently Asked Questions</h2></div>
+  <div class="faq-wrap">
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="ttq1">Can I download TikTok without watermark?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="tta1">Yes! We provide a no-watermark download option powered by our backend API that retrieves the clean original video file.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="ttq2">Can I download TikTok audio / music?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="tta2">Yes! Extract background music or voice-over from any TikTok video and save it as an MP3 audio file.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="ttq3">Does it work for TikTok slideshows?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="tta3">Yes! TikTok photo slideshows are supported. Each slide image is made available for individual download.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="ttq4">What quality is available for TikTok?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="tta4">TikTok videos can be downloaded in up to 1080p HD (no watermark) or 720p, plus MP3 audio — depending on the original upload quality.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="ttq5">Can I download private TikTok videos?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="tta5">Only public TikTok videos can be downloaded. Private account videos and friends-only content are not accessible.</div></div>
+  </div>
+  <div class="ad-box"><div class="ad-inner-box" onclick="openAd()"><div class="ad-label" data-i18n="ad_label">Advertisement</div><p data-i18n="ad_text">Support us by clicking here</p></div></div>
+</div>
+
+<!-- ════════════════ TWITTER / X ════════════════ -->
+<div class="platform-section" id="sec-twitter">
+  <div class="ad-box"><div class="ad-inner-box" onclick="openAd()"><div class="ad-label" data-i18n="ad_label">Advertisement</div><p data-i18n="ad_text">Support us by clicking here</p></div></div>
+  <div class="hero">
+    <div class="hero-badge">★ <span data-i18n="badge">Free · Fast · HD</span></div>
+    <h1><span class="accent" data-i18n="tw_h1a">Twitter / X</span> <span data-i18n="tw_h1b">Video Downloader</span></h1>
+    <p class="sub" data-i18n="tw_sub">Download videos, GIFs and photos from Twitter (X) in HD quality — free, instant, no login needed.</p>
+    <div class="search-wrap">
+      <input class="search-input" id="tw-url" type="url" placeholder="https://x.com/user/status/...">
+      <button class="search-btn" onclick="fetchMedia('twitter')" data-i18n="btn_dl">Download</button>
+    </div>
+    <p class="search-hint">twitter.com · x.com · GIFs · Videos · Photos</p>
+    <div class="api-status"><div class="api-dot"></div><span data-i18n="api_live">API Online</span></div>
+  </div>
+  <div class="spin-wrap" id="tw-spin"><div class="spin-ring"></div><div class="spin-label">Fetching video info…</div></div>
+  <div class="err-box" id="tw-err"></div>
+  <div class="result-section" id="tw-result"></div>
+  <div class="howto">
+    <h2 class="section-title" data-i18n="tw_how_t">How to Download Twitter / X Videos</h2>
+    <p class="section-sub" data-i18n="tw_how_s">Videos, GIFs and Photos from any tweet</p>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><h4 data-i18n="tw_s1h">Find the Tweet</h4><p data-i18n="tw_s1p">Go to X (Twitter) and open the tweet containing the video, GIF or photo you want.</p></div>
+      <div class="step"><div class="step-num">2</div><h4 data-i18n="tw_s2h">Copy Tweet URL</h4><p data-i18n="tw_s2p">Click Share → Copy Link to Tweet, or copy the URL from your browser address bar.</p></div>
+      <div class="step"><div class="step-num">3</div><h4 data-i18n="tw_s3h">Download & Save</h4><p data-i18n="tw_s3p">Paste the link above, click Download, select your quality and save the file to your device.</p></div>
+    </div>
+  </div>
+  <div style="max-width:780px;margin:0 auto;padding:0 20px 10px;"><h2 class="section-title" data-i18n="faq_t">Frequently Asked Questions</h2></div>
+  <div class="faq-wrap">
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="twq1">Can I download Twitter GIFs?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="twa1">Yes! Twitter GIFs are stored as MP4 videos. Our tool downloads them as .mp4 files that play anywhere.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="twq2">Can I download photos from tweets?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="twa2">Yes! Photos embedded in tweets can be downloaded in full original resolution. If a tweet contains multiple photos, each one is listed for download.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="twq3">Can I download from private Twitter accounts?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="twa3">No. Only public tweets are accessible. Protected accounts require authentication and cannot be downloaded by our tool.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="twq4">What video quality is available?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="twa4">Twitter videos can be downloaded in up to 1080p HD where available. Multiple quality options are listed depending on what Twitter provides for that tweet.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="twq5">The link is not working — what do I do?</span><svg class="faq-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" data-i18n="twa5">Ensure you copy the full tweet URL (e.g., https://x.com/username/status/1234567890). Avoid sharing short links or mobile app-only deep links.</div></div>
+  </div>
+  <div class="ad-box"><div class="ad-inner-box" onclick="openAd()"><div class="ad-label" data-i18n="ad_label">Advertisement</div><p data-i18n="ad_text">Support us by clicking here</p></div></div>
+</div>
+
+<!-- ════════════════ FOOTER ════════════════ -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="footer-logo">Get<span>Files</span></a>
+      <p data-i18n="foot_desc">The fastest free online media downloader. Download from YouTube, Facebook, Instagram, TikTok, Twitter/X and more — no registration needed.</p>
+    </div>
+    <div class="footer-col">
+      <h5 data-i18n="foot_platforms">Platforms</h5>
+      <a href="#" onclick="switchPlatform('youtube',null);return false;" data-i18n="nav_youtube">YouTube</a>
+      <a href="#" onclick="switchPlatform('facebook',null);return false;" data-i18n="nav_facebook">Facebook</a>
+      <a href="#" onclick="switchPlatform('instagram',null);return false;" data-i18n="nav_instagram">Instagram</a>
+      <a href="#" onclick="switchPlatform('tiktok',null);return false;" data-i18n="nav_tiktok">TikTok</a>
+      <a href="#" onclick="switchPlatform('twitter',null);return false;" data-i18n="nav_twitter">Twitter / X</a>
+    </div>
+    <div class="footer-col">
+      <h5 data-i18n="foot_support">Support</h5>
+      <a href="#" data-i18n="foot_faq">FAQ</a>
+      <a href="#" data-i18n="foot_howto">How to Download</a>
+      <a href="#" data-i18n="foot_contact">Contact Us</a>
+      <a href="#" data-i18n="foot_report">Report Issue</a>
+    </div>
+    <div class="footer-col">
+      <h5 data-i18n="foot_legal">Legal</h5>
+      <a href="#" data-i18n="foot_tos">Terms of Service</a>
+      <a href="#" data-i18n="foot_privacy">Privacy Policy</a>
+      <a href="#" data-i18n="foot_dmca">DMCA</a>
+      <a href="#" data-i18n="foot_cookie">Cookie Policy</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 GetFiles. <span data-i18n="foot_rights">All rights reserved.</span></span>
+    <span><a href="#" data-i18n="foot_tos">Terms</a> · <a href="#" data-i18n="foot_privacy">Privacy</a> · <a href="#" data-i18n="foot_dmca">DMCA</a></span>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT — Core Logic
+═══════════════════════════════════════════ -->
+
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════════════════
+   CONFIGURATION  – edit these two lines only
+═══════════════════════════════════════════════════════ */
+const AD_URL  = 'https://www.google.com/adsense'; // ← your ad URL
+const API_URL = '/.netlify/functions/info';        // ← Netlify backend (yt-dlp)
+
+/* ── icons ── */
+const ICO_DL   = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+const ICO_SPIN = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin .7s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>`;
+
+/* ── platform map ── */
+const PLATFORMS = {
+  youtube  : { inputId:'yt-url', spinId:'yt-spin', resultId:'yt-result', errId:'yt-err', theme:'theme-youtube'   },
+  facebook : { inputId:'fb-url', spinId:'fb-spin', resultId:'fb-result', errId:'fb-err', theme:'theme-facebook'  },
+  instagram: { inputId:'ig-url', spinId:'ig-spin', resultId:'ig-result', errId:'ig-err', theme:'theme-instagram' },
+  tiktok   : { inputId:'tt-url', spinId:'tt-spin', resultId:'tt-result', errId:'tt-err', theme:'theme-tiktok'   },
+  twitter  : { inputId:'tw-url', spinId:'tw-spin', resultId:'tw-result', errId:'tw-err', theme:'theme-twitter'  },
+};
+
+/* ── badge colours ── */
+const BADGE_CSS = {
+  'HQ' :'background:#DCFCE7;color:#166534',
+  'HD' :'background:#DBEAFE;color:#1E40AF',
+  'FHD':'background:#F3E8FF;color:#6B21A8',
+  '4K' :'background:#FEF3C7;color:#92400E',
+  '2K' :'background:#FEF3C7;color:#92400E',
+  'NWM':'background:#ECFDF5;color:#065F46',
+  'IMG':'background:#E0E7FF;color:#3730A3',
+  'SD' :'background:#F3F4F6;color:#374151',
+};
+
+let activePlatform = 'youtube';
+
+/* ── switch platform ── */
+function switchPlatform(p, btn) {
+  activePlatform = p;
+  document.querySelectorAll('.platform-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + p).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else document.querySelector(`.nav-tab[data-p="${p}"]`)?.classList.add('active');
+  Object.values(PLATFORMS).forEach(c => document.body.classList.remove(c.theme));
+  document.body.classList.add(PLATFORMS[p].theme);
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+/* ── toast ── */
+function showToast(msg, isErr=false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.toggle('err', isErr);
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), isErr ? 6000 : 3500);
+}
+
+/* ── faq ── */
+function toggleFaq(el) { el.classList.toggle('open'); }
+
+/* ── ad ── */
+function openAd() { window.open(AD_URL, '_blank', 'noopener,noreferrer'); }
+
+/* ── detect platform ── */
+function detectPlatform(url) {
+  if (/youtu\.be|youtube\.com/i.test(url))  return 'youtube';
+  if (/instagram\.com/i.test(url))           return 'instagram';
+  if (/tiktok\.com/i.test(url))              return 'tiktok';
+  if (/twitter\.com|x\.com/i.test(url))      return 'twitter';
+  if (/facebook\.com|fb\.watch/i.test(url))  return 'facebook';
+  return null;
+}
+function getPlatformLabel(p) {
+  return {youtube:'YouTube',facebook:'Facebook',instagram:'Instagram',tiktok:'TikTok',twitter:'Twitter/X'}[p] || p;
+}
+
+/* ── escape HTML ── */
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ════════════════════════════════════════════
+   MAIN DOWNLOAD FLOW
+   1. fetchMedia() → calls /.netlify/functions/info (yt-dlp backend)
+   2. renderResult() → shows thumbnail + quality table
+   3. startDownload() → opens the real CDN URL in a new tab
+════════════════════════════════════════════ */
+async function fetchMedia(platform) {
+  const cfg   = PLATFORMS[platform];
+  const input = document.getElementById(cfg.inputId);
+  let   url   = input.value.trim();
+
+  if (!url) { showToast('⚠ Please paste a video URL first.', true); input.focus(); return; }
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+  /* auto-switch if user pastes a different platform's link */
+  const det = detectPlatform(url);
+  if (det && det !== platform) {
+    const tabBtn = document.querySelector(`.nav-tab[data-p="${det}"]`);
+    switchPlatform(det, tabBtn);
+    setTimeout(() => {
+      document.getElementById(PLATFORMS[det].inputId).value = url;
+      fetchMedia(det);
+    }, 150);
+    return;
+  }
+
+  openAd(); // open ad on every download attempt
+
+  const spinner  = document.getElementById(cfg.spinId);
+  const resultEl = document.getElementById(cfg.resultId);
+  const errEl    = document.getElementById(cfg.errId);
+
+  /* reset UI */
+  resultEl.innerHTML = '';
+  resultEl.classList.remove('visible');
+  errEl.classList.remove('visible');
+  spinner.classList.add('active');
+
+  /* update spinner label */
+  const lbl = spinner.querySelector('.spin-label');
+  if (lbl) lbl.textContent = `Fetching ${getPlatformLabel(platform)} info via yt-dlp…`;
+
+  try {
+    const resp = await fetch(API_URL, {
+      method : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify({ url }),
+    });
+
+    const data = await resp.json();
+
+    if (!resp.ok || data.error) {
+      throw new Error(data.error || `Server error ${resp.status}`);
+    }
+
+    spinner.classList.remove('active');
+    renderResult(platform, data, resultEl);
+
+  } catch (e) {
+    spinner.classList.remove('active');
+    const msg = e.message || 'Failed to fetch video info. Check the URL and try again.';
+    errEl.innerHTML = `<div class="err-inner">⚠ ${esc(msg)}</div>`;
+    errEl.classList.add('visible');
+    showToast('⚠ ' + msg, true);
+    console.error('[GetFiles]', e);
+  }
+}
+
+/* ── render result card with thumbnail + quality table ── */
+function renderResult(platform, data, container) {
+  const { title, author, duration, thumb, qualities } = data;
+
+  const platformEmoji = {youtube:'▶',facebook:'📘',instagram:'📸',tiktok:'🎵',twitter:'✖'}[platform];
+
+  const thumbHtml = thumb
+    ? `<img class="result-thumb-img" src="${esc(thumb)}" alt="thumbnail"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+       <div class="thumb-placeholder" style="display:none;">${platformEmoji}</div>`
+    : `<div class="thumb-placeholder">${platformEmoji}</div>`;
+
+  const metaBits = [
+    author   ? `<span>👤 ${esc(author)}</span>`   : '',
+    duration ? `<span>⏱ ${esc(duration)}</span>`  : '',
+    qualities?.length ? `<span>✓ ${qualities.length} formats available</span>` : '',
+  ].filter(Boolean).join('');
+
+  const rows = (qualities || []).map((q, i) => {
+    const badgeStyle = BADGE_CSS[q.badge] || '';
+    const badgeHtml  = q.badge
+      ? `<span style="display:inline-block;padding:2px 7px;border-radius:5px;font-size:.68rem;font-weight:700;letter-spacing:.04em;margin-left:6px;vertical-align:middle;${badgeStyle}">${esc(q.badge)}</span>`
+      : '';
+    return `<tr>
+      <td style="padding:11px 16px;font-size:.88rem;">${esc(q.label)}${badgeHtml}</td>
+      <td style="padding:11px 16px;font-size:.81rem;color:var(--gray-400);">${esc(q.size||'Variable')}</td>
+      <td style="padding:11px 14px;text-align:right;">
+        <button class="dl-btn"
+          onclick="startDownload(this,'${encodeURIComponent(q.url)}','${encodeURIComponent(esc(q.label))}','${esc(q.ext||'mp4')}')">
+          ${ICO_DL} Download
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="result-card">
+      <div class="result-header">
+        <div class="result-thumb-wrap">${thumbHtml}</div>
+        <div class="result-meta">
+          <h3>${esc(title || 'Media Found')}</h3>
+          <div class="result-meta-row">${metaBits}</div>
+        </div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:var(--primary);">
+            <th style="padding:11px 16px;text-align:left;color:#fff;font-family:'Sora',sans-serif;font-size:.82rem;font-weight:700;">Format / Quality</th>
+            <th style="padding:11px 16px;text-align:left;color:#fff;font-family:'Sora',sans-serif;font-size:.82rem;font-weight:700;">File Size</th>
+            <th style="padding:11px 16px;text-align:right;color:#fff;font-family:'Sora',sans-serif;font-size:.82rem;font-weight:700;">Action</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+
+  container.classList.add('visible');
+  container.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  showToast(`✓ Found ${(qualities||[]).length} formats — choose one to download!`);
+}
+
+/* ── start download ── */
+function startDownload(btn, encodedUrl, encodedLabel, ext) {
+  const rawUrl   = decodeURIComponent(encodedUrl);
+  const rawLabel = decodeURIComponent(encodedLabel);
+  const filename = rawLabel.replace(/[^a-zA-Z0-9_\-. ]/g, '_') + '.' + ext;
+
+  btn.innerHTML = `${ICO_SPIN} Starting…`;
+  btn.style.pointerEvents = 'none';
+  openAd(); // open ad on download click
+
+  /* Create an <a> tag and trigger download */
+  const a = document.createElement('a');
+  a.href     = rawUrl;
+  a.download = filename;
+  a.target   = '_blank';
+  a.rel      = 'noopener noreferrer';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  showToast(`⬇ Download started: ${rawLabel}`);
+  setTimeout(() => {
+    btn.innerHTML = `${ICO_DL} Download`;
+    btn.style.pointerEvents = '';
+  }, 3000);
+}
+
+/* ── enter key support ── */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const map = { 'yt-url':'youtube','fb-url':'facebook','ig-url':'instagram','tt-url':'tiktok','tw-url':'twitter' };
+  const id = document.activeElement?.id;
+  if (map[id]) fetchMedia(map[id]);
+});
+
+/* ── auto detect on paste ── */
+Object.values(PLATFORMS).forEach(cfg => {
+  const el = document.getElementById(cfg.inputId);
+  if (!el) return;
+  el.addEventListener('paste', () => setTimeout(() => {
+    const val = el.value.trim();
+    const det = detectPlatform(val);
+    if (det && det !== activePlatform) {
+      const tabBtn = document.querySelector(`.nav-tab[data-p="${det}"]`);
+      switchPlatform(det, tabBtn);
+      setTimeout(() => { document.getElementById(PLATFORMS[det].inputId).value = val; }, 100);
+      showToast(`💡 Detected ${getPlatformLabel(det)} link — switched tab!`);
+    }
+  }, 50));
+});
+
+/* ════════════════════════════════════════════
+   LANGUAGE SYSTEM (preserved from original)
+════════════════════════════════════════════ */
+const LANGUAGES = [
+  { code:'en', name:'English',    flag:'🇺🇸' },
+  { code:'es', name:'Español',    flag:'🇪🇸' },
+  { code:'de', name:'Deutsch',    flag:'🇩🇪' },
+  { code:'ar', name:'العربية',    flag:'🇸🇦', rtl:true },
+  { code:'pt', name:'Português',  flag:'🇵🇹' },
+  { code:'ru', name:'Русский',    flag:'🇷🇺' },
+  { code:'id', name:'Indonesian', flag:'🇮🇩' },
+  { code:'tr', name:'Türkçe',     flag:'🇹🇷' },
+  { code:'fr', name:'Français',   flag:'🇫🇷' },
+  { code:'it', name:'Italiano',   flag:'🇮🇹' },
+  { code:'hi', name:'हिन्दी',      flag:'🇮🇳' },
+  { code:'ja', name:'日本語',      flag:'🇯🇵' },
+  { code:'ko', name:'한국어',      flag:'🇰🇷' },
+  { code:'th', name:'ภาษาไทย',    flag:'🇹🇭' },
+];
+const T = {
+  en:{},
+  es:{ nav_youtube:'YouTube',nav_facebook:'Facebook',nav_instagram:'Instagram',nav_tiktok:'TikTok',nav_twitter:'Twitter / X',badge:'Gratis · Rápido · HD',btn_dl:'Descargar',api_live:'API en Línea',ad_label:'Publicidad',ad_text:'Apóyanos haciendo clic aquí',faq_t:'Preguntas Frecuentes',foot_platforms:'Plataformas',foot_support:'Soporte',foot_legal:'Legal',foot_faq:'FAQ',foot_howto:'Cómo descargar',foot_contact:'Contáctanos',foot_report:'Reportar problema',foot_tos:'Términos de Servicio',foot_privacy:'Privacidad',foot_dmca:'DMCA',foot_cookie:'Cookies',foot_rights:'Todos los derechos reservados.',foot_desc:'El descargador de video gratuito más rápido.',yt_h1a:'YouTube',yt_h1b:'Descargador de Videos',yt_sub:'Descarga cualquier video de YouTube en MP4, MP3, 4K, 1080p — gratis.',fb_h1a:'Facebook',fb_h1b:'Descargador de Videos',ig_h1a:'Instagram',ig_h1b:'Descargador',tt_h1a:'TikTok',tt_h1b:'Descargador de Videos',tw_h1a:'Twitter / X',tw_h1b:'Descargador de Videos'},
+  de:{ nav_youtube:'YouTube',nav_facebook:'Facebook',nav_instagram:'Instagram',nav_tiktok:'TikTok',nav_twitter:'Twitter / X',badge:'Kostenlos · Schnell · HD',btn_dl:'Herunterladen',api_live:'API Online',faq_t:'Häufige Fragen',foot_rights:'Alle Rechte vorbehalten.',yt_h1a:'YouTube',yt_h1b:'Video-Downloader',fb_h1a:'Facebook',fb_h1b:'Video-Downloader',ig_h1a:'Instagram',ig_h1b:'Downloader',tt_h1a:'TikTok',tt_h1b:'Video-Downloader',tw_h1a:'Twitter / X',tw_h1b:'Video-Downloader'},
+  fr:{ nav_youtube:'YouTube',nav_facebook:'Facebook',nav_instagram:'Instagram',nav_tiktok:'TikTok',nav_twitter:'Twitter / X',badge:'Gratuit · Rapide · HD',btn_dl:'Télécharger',api_live:'API en ligne',faq_t:'Questions Fréquentes',foot_rights:'Tous droits réservés.',yt_h1a:'YouTube',yt_h1b:'Téléchargeur de Vidéos',fb_h1a:'Facebook',fb_h1b:'Téléchargeur',ig_h1a:'Instagram',ig_h1b:'Téléchargeur',tt_h1a:'TikTok',tt_h1b:'Téléchargeur de Vidéos',tw_h1a:'Twitter / X',tw_h1b:'Téléchargeur de Vidéos'},
+  ar:{ nav_youtube:'يوتيوب',nav_facebook:'فيسبوك',nav_instagram:'إنستغرام',nav_tiktok:'تيك توك',nav_twitter:'تويتر / X',badge:'مجاني · سريع · HD',btn_dl:'تحميل',api_live:'الخادم نشط',faq_t:'الأسئلة الشائعة',foot_rights:'جميع الحقوق محفوظة.',yt_h1a:'يوتيوب',yt_h1b:'تنزيل الفيديوهات',fb_h1a:'فيسبوك',fb_h1b:'تنزيل الفيديوهات',ig_h1a:'إنستغرام',ig_h1b:'تنزيل المحتوى',tt_h1a:'تيك توك',tt_h1b:'تنزيل الفيديوهات',tw_h1a:'تويتر / X',tw_h1b:'تنزيل الفيديوهات'},
+  pt:{ nav_youtube:'YouTube',nav_facebook:'Facebook',nav_instagram:'Instagram',nav_tiktok:'TikTok',nav_twitter:'Twitter / X',badge:'Grátis · Rápido · HD',btn_dl:'Baixar',api_live:'API Online',faq_t:'Perguntas Frequentes',foot_rights:'Todos os direitos reservados.',yt_h1a:'YouTube',yt_h1b:'Baixador de Vídeos',fb_h1a:'Facebook',fb_h1b:'Baixador de Vídeos',ig_h1a:'Instagram',ig_h1b:'Baixador',tt_h1a:'TikTok',tt_h1b:'Baixador de Vídeos',tw_h1a:'Twitter / X',tw_h1b:'Baixador de Vídeos'},
+  ru:{ nav_youtube:'YouTube',nav_facebook:'Facebook',nav_instagram:'Instagram',nav_tiktok:'TikTok',nav_twitter:'Twitter / X',badge:'Бесплатно · Быстро · HD',btn_dl:'Скачать',api_live:'API онлайн',faq_t:'Часто задаваемые вопросы',foot_rights:'Все права защищены.',yt_h1a:'YouTube',yt_h1b:'Загрузчик Видео',fb_h1a:'Facebook',fb_h1b:'Загрузчик Видео',ig_h1a:'Instagram',ig_h1b:'Загрузчик',tt_h1a:'TikTok',tt_h1b:'Загрузчик Видео',tw_h1a:'Twitter / X',tw_h1b:'Загрузчик Видео'},
+  id:{ btn_dl:'Unduh',badge:'Gratis · Cepat · HD',api_live:'API Online',faq_t:'Pertanyaan Umum',foot_rights:'Hak cipta dilindungi.',yt_h1a:'YouTube',yt_h1b:'Pengunduh Video',fb_h1a:'Facebook',fb_h1b:'Pengunduh Video',ig_h1a:'Instagram',ig_h1b:'Pengunduh',tt_h1a:'TikTok',tt_h1b:'Pengunduh Video',tw_h1a:'Twitter / X',tw_h1b:'Pengunduh Video'},
+  tr:{ btn_dl:'İndir',badge:'Ücretsiz · Hızlı · HD',api_live:'API Çevrimiçi',faq_t:'Sık Sorulan Sorular',foot_rights:'Tüm hakları saklıdır.',yt_h1a:'YouTube',yt_h1b:'Video İndirici',fb_h1a:'Facebook',fb_h1b:'Video İndirici',ig_h1a:'Instagram',ig_h1b:'İndirici',tt_h1a:'TikTok',tt_h1b:'Video İndirici',tw_h1a:'Twitter / X',tw_h1b:'Video İndirici'},
+  it:{ btn_dl:'Scarica',badge:'Gratis · Veloce · HD',api_live:'API Online',faq_t:'Domande Frequenti',foot_rights:'Tutti i diritti riservati.',yt_h1a:'YouTube',yt_h1b:'Download Video',fb_h1a:'Facebook',fb_h1b:'Download Video',ig_h1a:'Instagram',ig_h1b:'Download',tt_h1a:'TikTok',tt_h1b:'Download Video',tw_h1a:'Twitter / X',tw_h1b:'Download Video'},
+  hi:{ nav_youtube:'यूट्यूब',nav_facebook:'फेसबुक',nav_instagram:'इंस्टाग्राम',nav_tiktok:'टिकटॉक',nav_twitter:'ट्विटर / X',btn_dl:'डाउनलोड करें',badge:'मुफ्त · तेज़ · HD',api_live:'API सक्रिय',faq_t:'अक्सर पूछे जाने वाले सवाल',foot_rights:'सभी अधिकार सुरक्षित।',yt_h1a:'यूट्यूब',yt_h1b:'वीडियो डाउनलोडर',fb_h1a:'फेसबुक',fb_h1b:'वीडियो डाउनलोडर',ig_h1a:'इंस्टाग्राम',ig_h1b:'डाउनलोडर',tt_h1a:'टिकटॉक',tt_h1b:'वीडियो डाउनलोडर',tw_h1a:'ट्विटर / X',tw_h1b:'वीडियो डाउनलोडर'},
+  ja:{ btn_dl:'ダウンロード',badge:'無料・高速・HD',api_live:'APIオンライン',faq_t:'よくある質問',foot_rights:'全著作権所有。',yt_h1a:'YouTube',yt_h1b:'動画ダウンローダー',fb_h1a:'Facebook',fb_h1b:'動画ダウンローダー',ig_h1a:'Instagram',ig_h1b:'ダウンローダー',tt_h1a:'TikTok',tt_h1b:'動画ダウンローダー',tw_h1a:'Twitter / X',tw_h1b:'動画ダウンローダー'},
+  ko:{ btn_dl:'다운로드',badge:'무료 · 빠름 · HD',api_live:'API 온라인',faq_t:'자주 묻는 질문',foot_rights:'모든 권리 보유.',yt_h1a:'유튜브',yt_h1b:'동영상 다운로더',fb_h1a:'페이스북',fb_h1b:'동영상 다운로더',ig_h1a:'인스타그램',ig_h1b:'다운로더',tt_h1a:'틱톡',tt_h1b:'동영상 다운로더',tw_h1a:'트위터 / X',tw_h1b:'동영상 다운로더'},
+  th:{ btn_dl:'ดาวน์โหลด',badge:'ฟรี · เร็ว · HD',api_live:'API ออนไลน์',faq_t:'คำถามที่พบบ่อย',foot_rights:'สงวนลิขสิทธิ์ทั้งหมด',yt_h1a:'YouTube',yt_h1b:'ดาวน์โหลดวิดีโอ',fb_h1a:'Facebook',fb_h1b:'ดาวน์โหลดวิดีโอ',ig_h1a:'Instagram',ig_h1b:'ดาวน์โหลด',tt_h1a:'TikTok',tt_h1b:'ดาวน์โหลดวิดีโอ',tw_h1a:'Twitter / X',tw_h1b:'ดาวน์โหลดวิดีโอ'},
+};
+
+let currentLang = 'en';
+function buildLangDD() {
+  const dd = document.getElementById('langDropdown');
+  dd.innerHTML = LANGUAGES.map(l =>
+    `<div class="lang-option ${l.code===currentLang?'selected':''}" onclick="setLang('${l.code}')">
+       <span>${l.flag}</span><span>${l.name}</span>
+     </div>`
+  ).join('');
+}
+function toggleLangDropdown() {
+  const wrap = document.getElementById('langWrap');
+  wrap.classList.toggle('open');
+  if (wrap.classList.contains('open')) buildLangDD();
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#langWrap')) document.getElementById('langWrap').classList.remove('open');
+});
+function setLang(code) {
+  currentLang = code;
+  const lang = LANGUAGES.find(l => l.code === code);
+  document.getElementById('langFlag').textContent = lang.flag;
+  document.getElementById('langCode').textContent = code.toUpperCase();
+  document.getElementById('langWrap').classList.remove('open');
+  document.documentElement.dir = lang.rtl ? 'rtl' : 'ltr';
+  const trans = T[code] || {};
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (trans[key])      el.textContent = trans[key];
+    else if (T.en[key])  el.textContent = T.en[key];
+  });
+  buildLangDD();
+}
+buildLangDD();
+</script>
+</body>
+</html>
